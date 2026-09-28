@@ -5,7 +5,7 @@ echo " AgentRouter + Claude Code Setup"
 echo "======================================"
 echo
 
-read -rsp "Enter your AgentRouter API key: " API_KEY
+read -rp "Enter your AgentRouter API key: " API_KEY
 echo
 echo
 
