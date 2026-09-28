@@ -107,7 +107,11 @@ echo "Claude Code : Installed"
 echo "Model       : deepseek-v4-flash"
 echo "Base URL    : $ANTHROPIC_BASE_URL"
 echo
-echo "Run:"
-echo "  source ~/.zshrc"
-echo "  claude"
+
+source ~/.zshrc
+
+echo "Running Claude"
+
+claude
+
 echo
