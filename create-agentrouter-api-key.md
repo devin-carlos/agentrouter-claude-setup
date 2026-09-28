@@ -8,8 +8,8 @@ Use this registration/login link:
 
 https://agentrouter.org/register?aff=H9Bz
 
-**IMPORTANT : LOGIN WITH YOUR GITHUB ACCOUNT
-**
+**IMPORTANT : LOGIN WITH YOUR GITHUB ACCOUNT**
+
 ## 2. Open API Key / Token Management
 
 After logging in, open the AgentRouter dashboard and go to the section used to manage **API Keys / Tokens**.
