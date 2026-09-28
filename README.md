@@ -20,6 +20,9 @@ A simple setup script for configuring **Claude Code** to use **AgentRouter** wit
 * Zsh
 
 ## Quick Setup
+# Creating an AgentRouter API key
+
+For detailed instructions on creating an AgentRouter API key, see create-agentrouter-api-key.md
 
 Run:
 
