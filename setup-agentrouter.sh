@@ -1,3 +1,4 @@
+```bash
 #!/bin/bash
 
 echo "======================================"
@@ -6,54 +7,7 @@ echo "======================================"
 echo
 
 # ======================================
-# Check Claude Code
-# ======================================
-
-if command -v claude >/dev/null 2>&1; then
-    echo "[+] Claude Code is already installed."
-    echo
-    claude --version || true
-else
-    echo "[!] Claude Code is not installed."
-    echo
-
-    read -rp "Do you want to install Claude Code? [Y/n]: " INSTALL_CLAUDE </dev/tty
-
-    INSTALL_CLAUDE=${INSTALL_CLAUDE:-Y}
-
-    if [[ "$INSTALL_CLAUDE" =~ ^[Yy]$ ]]; then
-        echo
-        echo "[+] Installing Claude Code..."
-        echo
-
-        curl -fsSL https://claude.ai/install.sh | bash
-
-        # Add common Claude Code install location to PATH
-        export PATH="$HOME/.local/bin:$PATH"
-
-        echo
-        echo "[+] Checking Claude Code installation..."
-
-        if command -v claude >/dev/null 2>&1; then
-            echo "[+] Claude Code installed successfully."
-            claude --version || true
-        else
-            echo
-            echo "[ERROR] Claude Code installation failed."
-            echo "Please install Claude Code manually and run this script again."
-            exit 1
-        fi
-    else
-        echo
-        echo "[ERROR] Claude Code is required."
-        exit 1
-    fi
-fi
-
-echo
-
-# ======================================
-# AgentRouter API Key
+# AgentRouter Configuration
 # ======================================
 
 read -rp "Enter your AgentRouter API key: " API_KEY </dev/tty
@@ -68,8 +22,12 @@ echo
 echo "[+] API key received."
 echo
 
+# AgentRouter settings
+ANTHROPIC_BASE_URL="https://agentrouter.org/"
+ANTHROPIC_MODEL="deepseek-v4-flash"
+
 # ======================================
-# ZSH Configuration
+# Configure ZSH
 # ======================================
 
 ZSHRC="$HOME/.zshrc"
@@ -81,37 +39,111 @@ sed -i '/export ANTHROPIC_BASE_URL=/d' "$ZSHRC"
 sed -i '/export ANTHROPIC_AUTH_TOKEN=/d' "$ZSHRC"
 sed -i '/export ANTHROPIC_MODEL=/d' "$ZSHRC"
 
-# ======================================
-# Configure AgentRouter
-# ======================================
-
+# Add configuration
 cat >> "$ZSHRC" <<EOF
 
 # AgentRouter + Claude Code
-export ANTHROPIC_BASE_URL="https://agentrouter.org/"
+export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
 export ANTHROPIC_AUTH_TOKEN="$API_KEY"
-export ANTHROPIC_MODEL="deepseek-v4-flash"
+export ANTHROPIC_MODEL="$ANTHROPIC_MODEL"
 EOF
 
-# Apply configuration to current shell
-export ANTHROPIC_BASE_URL="https://agentrouter.org/"
+# Apply configuration to the CURRENT script/session.
+# No "source ~/.zshrc" is required.
+export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
 export ANTHROPIC_AUTH_TOKEN="$API_KEY"
-export ANTHROPIC_MODEL="deepseek-v4-flash"
+export ANTHROPIC_MODEL="$ANTHROPIC_MODEL"
+
+echo "[+] AgentRouter configuration completed."
+echo
+echo "Model    : $ANTHROPIC_MODEL"
+echo "Base URL : $ANTHROPIC_BASE_URL"
+echo
+
+# ======================================
+# Check Claude Code
+# ======================================
+
+echo "======================================"
+echo " Checking Claude Code"
+echo "======================================"
+echo
+
+if command -v claude >/dev/null 2>&1; then
+
+    echo "[+] Claude Code is already installed."
+    echo
+
+    claude --version || true
+
+else
+
+    echo "[!] Claude Code is not installed."
+    echo
+
+    read -rp "Do you want to install Claude Code? [Y/n]: " INSTALL_CLAUDE </dev/tty
+
+    INSTALL_CLAUDE=${INSTALL_CLAUDE:-Y}
+
+    if [[ "$INSTALL_CLAUDE" =~ ^[Yy]$ ]]; then
+
+        echo
+        echo "[+] Installing Claude Code..."
+        echo
+
+        curl -fsSL https://claude.ai/install.sh | bash
+
+        # Refresh PATH without sourcing ~/.zshrc
+        export PATH="$HOME/.local/bin:$HOME/.claude/bin:$PATH"
+
+        echo
+        echo "[+] Checking Claude Code installation..."
+        echo
+
+        if command -v claude >/dev/null 2>&1; then
+
+            echo "[+] Claude Code installed successfully."
+            claude --version || true
+
+        else
+
+            echo
+            echo "[ERROR] Claude Code installation failed."
+            echo
+            echo "Please install Claude Code manually and run this script again."
+            exit 1
+
+        fi
+
+    else
+
+        echo
+        echo "[ERROR] Claude Code is required."
+        echo
+        exit 1
+
+    fi
+fi
+
+# ======================================
+# Final Verification
+# ======================================
 
 echo
 echo "======================================"
-echo " Setup completed successfully!"
+echo " Setup Completed Successfully!"
 echo "======================================"
 echo
 echo "Claude Code : Installed"
-echo "Model       : deepseek-v4-flash"
+echo "Model       : $ANTHROPIC_MODEL"
 echo "Base URL    : $ANTHROPIC_BASE_URL"
 echo
-
-source ~/.zshrc
-
-echo "Running Claude"
-
-claude
-
+echo "Configuration saved to:"
+echo "  $ZSHRC"
 echo
+echo "Starting Claude Code..."
+echo
+
+# Start Claude with the configuration already exported
+claude
+```
