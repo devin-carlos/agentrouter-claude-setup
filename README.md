@@ -1,50 +1,83 @@
 # AgentRouter + Claude Code Setup
 
-A simple setup script for configuring **Claude Code** to use **AgentRouter** with the `deepseek-v4-flash` model.
+> One-line setup script that configures **Claude Code** to run through **AgentRouter** using the `deepseek-v4-flash` model — on any Linux system.
 
-## Features
+![Shell](https://img.shields.io/badge/shell-bash%20%7C%20zsh%20%7C%20fish%20%7C%20ksh-blue)
+![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-* Configures AgentRouter automatically
-* Sets the Anthropic-compatible API endpoint
-* Sets the AgentRouter authentication token
-* Configures `deepseek-v4-flash`
-* Automatically updates `~/.zshrc`
-* Does not store your API key in the script
+---
 
-## Requirements
+## Table of Contents
 
-* Kali Linux / Linux
-* Claude Code installed
-* An AgentRouter API key
-* `curl`
-* Zsh
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Requirements](#requirements)
+- [How It Works](#how-it-works)
+- [Manual Installation](#manual-installation)
+- [Shell & RC File Support](#shell--rc-file-support)
+- [Configuration](#configuration)
+- [Verify Setup](#verify-setup)
+- [Troubleshooting](#troubleshooting)
+- [Security](#security)
 
-## Quick Setup
-## Create AgentRouter API Key
+---
 
-Need an AgentRouter API key?
-
-👉 [Follow the API Key Creation Guide](CREATE-AGENTROUTER-API-KEY.md)
-
-Run:
+## Quick Start
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/devin-carlos/agentrouter-claude-setup/main/setup-agentrouter.sh | bash
 ```
 
-The script will ask for your AgentRouter API key.
+The script will prompt for your AgentRouter API key — that's all you need to do.
 
-Example:
+> **Need an AgentRouter API key?**
+> Follow the step-by-step guide: [CREATE-API-KEY.md](CREATE-API-KEY.md)
 
-```text
-======================================
- AgentRouter + Claude Code Setup
-======================================
+---
 
-Enter your AgentRouter API key:
+## Features
+
+- ✅ Works on **any Linux distribution** (Ubuntu, Debian, Fedora, Arch, Kali, etc.)
+- ✅ **Auto-detects your shell** and writes to the correct RC file
+- ✅ Supports **Bash, Zsh, Fish, Ksh**, and any POSIX shell
+- ✅ Checks if Claude Code is installed — **installs it automatically** if missing
+- ✅ Applies config to the **current session** immediately (no `source` needed)
+- ✅ Validates that `curl` is available before proceeding
+- ✅ **Never stores your API key** in the script itself
+- ✅ Safe to re-run — removes duplicate config entries automatically
+
+---
+
+## Requirements
+
+| Requirement | Notes |
+|-------------|-------|
+| Linux (any distro) | Ubuntu, Debian, Fedora, Arch, Kali, etc. |
+| Bash | Script runs under `bash` |
+| `curl` | Required for Claude Code installation |
+| AgentRouter API key | Get one at [agentrouter.org](https://agentrouter.org) |
+
+> Claude Code does **not** need to be installed beforehand — the script will offer to install it for you.
+
+---
+
+## How It Works
+
+```
+┌─────────────────────────────────────┐
+│   curl ... | bash                   │
+│                                     │
+│  1. Prompt for AgentRouter API key  │
+│  2. Detect shell (bash/zsh/fish...) │
+│  3. Write exports to RC file        │
+│  4. Export vars to current session  │
+│  5. Check / install Claude Code     │
+│  6. Launch claude                   │
+└─────────────────────────────────────┘
 ```
 
-Your API key will not be displayed while you type.
+---
 
 ## Manual Installation
 
@@ -67,64 +100,123 @@ Run it:
 ./setup-agentrouter.sh
 ```
 
+---
+
+## Shell & RC File Support
+
+The script automatically detects your shell via `$SHELL` and updates the correct file:
+
+| Shell | RC File Written |
+|-------|----------------|
+| Bash  | `~/.bashrc` (or `~/.bash_profile`) |
+| Zsh   | `~/.zshrc` |
+| Fish  | `~/.config/fish/config.fish` |
+| Ksh   | `~/.kshrc` |
+| Other | `~/.profile` |
+
+---
+
 ## Configuration
 
-The script adds the following configuration to `~/.zshrc`:
+The script adds the following to your shell RC file:
 
 ```bash
+# AgentRouter + Claude Code
 export ANTHROPIC_BASE_URL="https://agentrouter.org/"
-export ANTHROPIC_AUTH_TOKEN="YOUR_AGENTROUTER_API_KEY"
+export ANTHROPIC_AUTH_TOKEN="your-api-key"
 export ANTHROPIC_MODEL="deepseek-v4-flash"
 ```
 
-The configuration is also applied to the current shell session.
+These are also exported directly into the **current session**, so Claude Code works immediately without restarting your terminal.
 
-## Start Claude Code
+---
 
-After setup:
+## Verify Setup
 
-```bash
-claude
-```
-
-## Verify Configuration
-
-You can check the configured model:
+After running the script, confirm everything is configured correctly:
 
 ```bash
+# Check the model
 echo $ANTHROPIC_MODEL
-```
+# Expected: deepseek-v4-flash
 
-Expected:
-
-```text
-deepseek-v4-flash
-```
-
-Check the API endpoint:
-
-```bash
+# Check the API endpoint
 echo $ANTHROPIC_BASE_URL
+# Expected: https://agentrouter.org/
+
+# Confirm the token is set (shows first 10 chars only)
+echo ${ANTHROPIC_AUTH_TOKEN:0:10}...
+
+# Check Claude Code is installed
+claude --version
 ```
 
-Expected:
+---
 
-```text
-https://agentrouter.org/
-```
+## Troubleshooting
 
-You can check that the token exists without displaying the complete key:
+### API key prompt doesn't appear
+
+This can happen when piping through `curl`. The script reads from `/dev/tty` directly, so it should work — but if it doesn't, clone and run manually:
 
 ```bash
-echo ${ANTHROPIC_AUTH_TOKEN:0:10}
+git clone https://github.com/devin-carlos/agentrouter-claude-setup.git
+cd agentrouter-claude-setup
+bash setup-agentrouter.sh
 ```
+
+### `curl` is not installed
+
+The script will detect this and show the correct install command for your distro:
+
+```bash
+# Debian / Ubuntu
+sudo apt-get install -y curl
+
+# Fedora / RHEL
+sudo dnf install -y curl
+
+# Arch
+sudo pacman -S curl
+```
+
+### Claude Code installation fails
+
+If automatic installation fails, install Claude Code manually:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+Then re-run `setup-agentrouter.sh`.
+
+### Config not loading in new terminal
+
+Run:
+
+```bash
+source ~/.bashrc   # or ~/.zshrc depending on your shell
+```
+
+---
 
 ## Security
 
 **Never share your AgentRouter API key.**
 
-Do not put your personal API key directly inside:
+Do not commit your API key into:
 
-* `setup-agentrouter.sh`
-* `README.md`
-* Gi
+- `setup-agentrouter.sh`
+- `README.md`
+- GitHub source files
+- Screenshots or screen recordings
+- Public `.env` files or tutorials
+
+Each user should create and use their own API key.
+If a key is accidentally exposed, **revoke or rotate it from your AgentRouter dashboard immediately**.
+
+---
+
+## Disclaimer
+
+This project is an independent setup utility and is not affiliated with or endorsed by Anthropic, Claude, DeepSeek, or AgentRouter.

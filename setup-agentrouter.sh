@@ -1,4 +1,3 @@
-```bash
 #!/bin/bash
 
 echo "======================================"
@@ -27,20 +26,58 @@ ANTHROPIC_BASE_URL="https://agentrouter.org/"
 ANTHROPIC_MODEL="deepseek-v4-flash"
 
 # ======================================
-# Configure ZSH
+# Detect Shell RC File
 # ======================================
 
-ZSHRC="$HOME/.zshrc"
+detect_rc_file() {
+    # Try to detect the user's preferred shell from $SHELL
+    DETECTED_SHELL="$(basename "${SHELL:-}")"
 
-touch "$ZSHRC"
+    case "$DETECTED_SHELL" in
+        zsh)
+            echo "$HOME/.zshrc"
+            ;;
+        bash)
+            # Prefer .bashrc on Linux, fallback to .bash_profile
+            if [ -f "$HOME/.bashrc" ]; then
+                echo "$HOME/.bashrc"
+            else
+                echo "$HOME/.bash_profile"
+            fi
+            ;;
+        fish)
+            echo "$HOME/.config/fish/config.fish"
+            ;;
+        ksh)
+            echo "$HOME/.kshrc"
+            ;;
+        *)
+            # Unknown shell — fallback to ~/.profile (POSIX, works on all shells)
+            echo "$HOME/.profile"
+            ;;
+    esac
+}
 
-# Remove existing AgentRouter configuration
-sed -i '/export ANTHROPIC_BASE_URL=/d' "$ZSHRC"
-sed -i '/export ANTHROPIC_AUTH_TOKEN=/d' "$ZSHRC"
-sed -i '/export ANTHROPIC_MODEL=/d' "$ZSHRC"
+RC_FILE="$(detect_rc_file)"
+
+echo "[+] Detected shell  : ${SHELL:-unknown}"
+echo "[+] Using RC file   : $RC_FILE"
+echo
+
+# ======================================
+# Configure Shell RC File
+# ======================================
+
+touch "$RC_FILE"
+
+# Remove any existing AgentRouter configuration (avoid duplicates)
+sed -i '/export ANTHROPIC_BASE_URL=/d' "$RC_FILE"
+sed -i '/export ANTHROPIC_AUTH_TOKEN=/d' "$RC_FILE"
+sed -i '/export ANTHROPIC_MODEL=/d' "$RC_FILE"
+sed -i '/# AgentRouter + Claude Code/d' "$RC_FILE"
 
 # Add configuration
-cat >> "$ZSHRC" <<EOF
+cat >> "$RC_FILE" <<EOF
 
 # AgentRouter + Claude Code
 export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
@@ -49,7 +86,7 @@ export ANTHROPIC_MODEL="$ANTHROPIC_MODEL"
 EOF
 
 # Apply configuration to the CURRENT script/session.
-# No "source ~/.zshrc" is required.
+# No "source <rc_file>" is required.
 export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
 export ANTHROPIC_AUTH_TOKEN="$API_KEY"
 export ANTHROPIC_MODEL="$ANTHROPIC_MODEL"
@@ -91,10 +128,20 @@ else
         echo "[+] Installing Claude Code..."
         echo
 
+        # Check that curl is available
+        if ! command -v curl >/dev/null 2>&1; then
+            echo "[ERROR] curl is required but not installed."
+            echo "Install curl with your package manager and try again:"
+            echo "  Debian/Ubuntu : sudo apt-get install -y curl"
+            echo "  Fedora/RHEL   : sudo dnf install -y curl"
+            echo "  Arch          : sudo pacman -S curl"
+            exit 1
+        fi
+
         curl -fsSL https://claude.ai/install.sh | bash
 
-        # Refresh PATH without sourcing ~/.zshrc
-        export PATH="$HOME/.local/bin:$HOME/.claude/bin:$PATH"
+        # Refresh PATH to cover common Claude Code install locations
+        export PATH="$HOME/.local/bin:$HOME/.claude/bin:/usr/local/bin:$PATH"
 
         echo
         echo "[+] Checking Claude Code installation..."
@@ -139,11 +186,13 @@ echo "Model       : $ANTHROPIC_MODEL"
 echo "Base URL    : $ANTHROPIC_BASE_URL"
 echo
 echo "Configuration saved to:"
-echo "  $ZSHRC"
+echo "  $RC_FILE"
+echo
+echo "To apply in new terminal sessions, run:"
+echo "  source $RC_FILE"
 echo
 echo "Starting Claude Code..."
 echo
 
 # Start Claude with the configuration already exported
 claude
-```
