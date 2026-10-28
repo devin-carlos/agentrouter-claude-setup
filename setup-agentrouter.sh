@@ -21,9 +21,50 @@ echo
 echo "[+] API key received."
 echo
 
+# ======================================
+# Model Selection
+# ======================================
+
+echo "========================================"
+echo " AgentRouter + Claude Code Setup"
+echo "========================================"
+echo
+echo "Select your preferred model:"
+echo
+echo "  1. gpt-6.1-sol"
+echo "  2. gpt-6-astra"
+echo "  3. gpt-5.6-sol"
+echo "  4. claude-opus-4-8"
+echo "  5. claude-opus-5"
+echo "  6. claude-opus-5-5"
+echo "  7. deepseek-v4-flash"
+echo
+
+read -rp "Enter your choice [1-7] (default: 7): " MODEL_CHOICE </dev/tty
+
+MODEL_CHOICE="${MODEL_CHOICE:-7}"
+
+case "$MODEL_CHOICE" in
+    1) ANTHROPIC_MODEL="gpt-6.1-sol" ;;
+    2) ANTHROPIC_MODEL="gpt-6-astra" ;;
+    3) ANTHROPIC_MODEL="gpt-5.6-sol" ;;
+    4) ANTHROPIC_MODEL="claude-opus-4-8" ;;
+    5) ANTHROPIC_MODEL="claude-opus-5" ;;
+    6) ANTHROPIC_MODEL="claude-opus-5-5" ;;
+    7) ANTHROPIC_MODEL="deepseek-v4-flash" ;;
+    *)
+        echo
+        echo "[WARNING] Invalid choice '$MODEL_CHOICE'. Using default: deepseek-v4-flash"
+        ANTHROPIC_MODEL="deepseek-v4-flash"
+        ;;
+esac
+
+echo
+echo "[+] Selected model: $ANTHROPIC_MODEL"
+echo
+
 # AgentRouter settings
 ANTHROPIC_BASE_URL="https://agentrouter.org/"
-ANTHROPIC_MODEL="deepseek-v4-flash"
 
 # ======================================
 # Detect Shell RC File

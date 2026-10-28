@@ -1,6 +1,6 @@
 # AgentRouter + Claude Code Setup
 
-> One-line setup script that configures **Claude Code** to run through **AgentRouter** using the `deepseek-v4-flash` model — on any Linux system.
+> One-line setup script that configures **Claude Code** to run through **AgentRouter** — with an **interactive model picker** so you can choose your preferred model on any Linux system.
 
 ![Shell](https://img.shields.io/badge/shell-bash%20%7C%20zsh%20%7C%20fish%20%7C%20ksh-blue)
 ![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
@@ -29,16 +29,17 @@
 curl -fsSL https://raw.githubusercontent.com/devin-carlos/agentrouter-claude-setup/main/setup-agentrouter.sh | bash
 ```
 
-The script will prompt for your AgentRouter API key — that's all you need to do.
+The script will prompt for your AgentRouter API key and let you pick a model — that's all you need to do.
 
 > **Need an AgentRouter API key?**
-> Follow the step-by-step guide: [CREATE-API-KEY.md](CREATE-API-KEY.md)
+> Sign up at [agentrouter.org](https://agentrouter.org) and generate a key from your dashboard.
 
 ---
 
 ## Features
 
 - ✅ Works on **any Linux distribution** (Ubuntu, Debian, Fedora, Arch, Kali, etc.)
+- ✅ **Interactive model picker** — choose from 7 AgentRouter models at setup time
 - ✅ **Auto-detects your shell** and writes to the correct RC file
 - ✅ Supports **Bash, Zsh, Fish, Ksh**, and any POSIX shell
 - ✅ Checks if Claude Code is installed — **installs it automatically** if missing
@@ -69,11 +70,12 @@ The script will prompt for your AgentRouter API key — that's all you need to d
 │   curl ... | bash                   │
 │                                     │
 │  1. Prompt for AgentRouter API key  │
-│  2. Detect shell (bash/zsh/fish...) │
-│  3. Write exports to RC file        │
-│  4. Export vars to current session  │
-│  5. Check / install Claude Code     │
-│  6. Launch claude                   │
+│  2. Show model selection menu       │
+│  3. Detect shell (bash/zsh/fish...) │
+│  4. Write exports to RC file        │
+│  5. Export vars to current session  │
+│  6. Check / install Claude Code     │
+│  7. Launch claude                   │
 └─────────────────────────────────────┘
 ```
 
@@ -124,10 +126,22 @@ The script adds the following to your shell RC file:
 # AgentRouter + Claude Code
 export ANTHROPIC_BASE_URL="https://agentrouter.org/"
 export ANTHROPIC_AUTH_TOKEN="your-api-key"
-export ANTHROPIC_MODEL="deepseek-v4-flash"
+export ANTHROPIC_MODEL="<your-chosen-model>"   # set interactively during setup
 ```
 
 These are also exported directly into the **current session**, so Claude Code works immediately without restarting your terminal.
+
+### Available Models
+
+| # | Model |
+|---|-------|
+| 1 | `gpt-6.1-sol` |
+| 2 | `gpt-6-astra` |
+| 3 | `gpt-5.6-sol` |
+| 4 | `claude-opus-4-8` |
+| 5 | `claude-opus-5` |
+| 6 | `claude-opus-5-5` |
+| 7 | `deepseek-v4-flash` *(default)* |
 
 ---
 
@@ -136,9 +150,8 @@ These are also exported directly into the **current session**, so Claude Code wo
 After running the script, confirm everything is configured correctly:
 
 ```bash
-# Check the model
+# Check the model (shows whatever you selected)
 echo $ANTHROPIC_MODEL
-# Expected: deepseek-v4-flash
 
 # Check the API endpoint
 echo $ANTHROPIC_BASE_URL
